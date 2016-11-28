@@ -46,6 +46,27 @@ class Neural_Network(object):
 
         return dJW1, dJdW2
 
+    #Helper functions for interacting with other methods/classes
+
+    def getParams(self):
+        #Get W1 and W2 and Rolled into vector:
+        params = np.concatenate((self.W1.ravel(), self.W2.ravel()))
+        return params
+
+    def setParams(self,params):
+        #Set W1 and W2 using single parameter vector:
+        W1_start = 0
+        W1_end = self.hiddenLayerSize*self.inputLayerSize
+        self.W1 = np.reshape(params[W1_start:W1_end], \
+                            (self.inputLayerSize,self.hiddenLayerSize))
+        W2_end = W1_end + self.hiddenLayerSize*self.outputLayerSize
+        self.W2=np.reshape(params[W1_end:W2_end], \
+                            (self.hiddenLayerSize,self.outputLayerSize))
+
+    def computeGradients(self,X,y):
+        dJdW1, dJdW2 = self.costFunctionPrime(X,y)
+        return np.concatenate((dJdW1.ravel(),dJdW2.ravel()))
+
 
 def computeNumericalGradient(N, X, y):
         paramsInitial = N.getParams()
@@ -71,7 +92,7 @@ def computeNumericalGradient(N, X, y):
         #Return Params to original value:
         N.setParams(paramsInitial)
 
-        return numgrad 
+        return numgrad
 
 # testInput = np.arange(-6,6,0.01)
 # plt.plot(testInput,sigmoid(testInput),linewidth=2)
@@ -89,5 +110,7 @@ X=X/np.amax(X, axis=0)
 y=y/100.
 
 NN = Neural_Network()
+numgrad = computeNumericalGradient(NN,X,y)
+grad = NN.computeGradients(X,y)
 
-cost1 = NN.costFunction(X,y)
+#cost1 = NN.costFunction(X,y)
